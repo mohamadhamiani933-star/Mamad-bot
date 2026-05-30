@@ -13,9 +13,9 @@ from aiogram.client.default import DefaultBotProperties
 
 # ---------------- CONFIG ---------------- #
 
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("8802940883:AAE4vMT_KU13-FFp-xWuIsW_PowKLI-tFIw")
 
-ADMIN_ID = 123456789  # عوض کن
+ADMIN_ID = 6143033648
 
 CARD_NUMBER = "6219861953148185"
 CARD_NAME = "محمد مهدی همیانی"
