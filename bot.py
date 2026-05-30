@@ -13,14 +13,21 @@ from aiogram.client.default import DefaultBotProperties
 
 # ---------------- CONFIG ---------------- #
 
-TOKEN = os.getenv("8802940883:AAE4vMT_KU13-FFp-xWuIsW_PowKLI-tFIw")
+TOKEN = os.getenv("BOT_TOKEN")
 
 ADMIN_ID = 6143033648
 
 CARD_NUMBER = "6219861953148185"
 CARD_NAME = "محمد مهدی همیانی"
 
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+if not TOKEN:
+    raise ValueError("BOT_TOKEN is not set!")
+
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
+
 dp = Dispatcher()
 
 DB = "bot.db"
@@ -43,7 +50,10 @@ async def get_user(user_id):
         row = await cur.fetchone()
 
         if not row:
-            await db.execute("INSERT INTO users (user_id, wallet) VALUES (?, ?)", (user_id, 0))
+            await db.execute(
+                "INSERT INTO users (user_id, wallet) VALUES (?, ?)",
+                (user_id, 0)
+            )
             await db.commit()
             return 0
 
@@ -51,7 +61,10 @@ async def get_user(user_id):
 
 async def add_wallet(user_id, amount):
     async with aiosqlite.connect(DB) as db:
-        await db.execute("UPDATE users SET wallet = wallet + ? WHERE user_id=?", (amount, user_id))
+        await db.execute(
+            "UPDATE users SET wallet = wallet + ? WHERE user_id=?",
+            (amount, user_id)
+        )
         await db.commit()
 
 # ---------------- KEYBOARDS ---------------- #
@@ -203,6 +216,7 @@ async def add_balance(msg: Message):
 # ---------------- RUN ---------------- #
 
 async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
     await init_db()
     print("BOT RUNNING")
     await dp.start_polling(bot)
