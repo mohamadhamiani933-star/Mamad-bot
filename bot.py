@@ -15,13 +15,13 @@ from aiogram.client.default import DefaultBotProperties
 
 TOKEN = os.getenv("BOT_TOKEN")
 
+if not TOKEN:
+    raise ValueError("BOT_TOKEN is not set in Railway Variables!")
+
 ADMIN_ID = 6143033648
 
 CARD_NUMBER = "6219861953148185"
 CARD_NAME = "محمد مهدی همیانی"
-
-if not TOKEN:
-    raise ValueError("BOT_TOKEN is not set!")
 
 bot = Bot(
     token=TOKEN,
@@ -46,7 +46,10 @@ async def init_db():
 
 async def get_user(user_id):
     async with aiosqlite.connect(DB) as db:
-        cur = await db.execute("SELECT wallet FROM users WHERE user_id=?", (user_id,))
+        cur = await db.execute(
+            "SELECT wallet FROM users WHERE user_id=?",
+            (user_id,)
+        )
         row = await cur.fetchone()
 
         if not row:
@@ -158,10 +161,6 @@ async def charge(c: CallbackQuery):
 💳 کارت:
 <code>{CARD_NUMBER}</code>
 
-⚠️ برای جلوگیری از خطا آخر مبلغ یک عدد اضافه کن
-
-مثلاً: 100009
-
 📸 رسید بفرست
 """
     )
@@ -186,16 +185,16 @@ async def receipt(msg: Message):
         reply_markup=admin_kb
     )
 
-    await msg.answer("⏳ رسید ارسال شد، منتظر تایید باشید")
+    await msg.answer("⏳ رسید ارسال شد")
 
-# ---------------- ADMIN PANEL ---------------- #
+# ---------------- ADMIN ---------------- #
 
 @dp.callback_query(F.data == "approve")
 async def approve(c: CallbackQuery):
     if c.from_user.id != ADMIN_ID:
         return
 
-    await c.message.answer("💰 مقدار شارژ رو وارد کن (مثال: 50000 123456789)")
+    await c.message.answer("💰 مقدار و آیدی را وارد کن (مثال: 50000 123456789)")
 
 @dp.message(F.text.regexp(r"^\d+ \d+$"))
 async def add_balance(msg: Message):
@@ -208,10 +207,10 @@ async def add_balance(msg: Message):
 
     await bot.send_message(
         user_id,
-        f"💰 کیف پول شما شارژ شد\n\n{amount:,} تومان 🎉"
+        f"💰 کیف پول شما شارژ شد\n{amount:,} تومان 🎉"
     )
 
-    await msg.answer("✅ شارژ شد")
+    await msg.answer("✅ انجام شد")
 
 # ---------------- RUN ---------------- #
 
@@ -221,4 +220,5 @@ async def main():
     print("BOT RUNNING")
     await dp.start_polling(bot)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
